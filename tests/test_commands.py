@@ -1,46 +1,53 @@
 import pytest
-from app.plugins.add import AddCommand
-from app.plugins.subtract import SubtractCommand
-from app.plugins.multiply import MultiplyCommand
-from app.plugins.divide import DivideCommand
-from app.plugins.menu import MenuCommand
+from app.commands import CommandHandler, Command
 
+class MockCommand(Command):
+    """Mock command for testing."""
+    def execute(self, *args):
+        return f"Mock Command Executed with args: {args}"
 
-# Test for AddCommand
-def test_add_command():
-    add_command = AddCommand(3, 5)
-    assert add_command.execute() == 8
+@pytest.fixture
+def command_handler():
+    """Fixture for CommandHandler."""
+    return CommandHandler()
 
-# Test for SubtractCommand
-def test_subtract_command():
-    subtract_command = SubtractCommand(10, 4)
-    assert subtract_command.execute() == 6
+@pytest.fixture
+def mock_command():
+    """Fixture for a mock command."""
+    return MockCommand()
 
-# Test for MultiplyCommand
-def test_multiply_command():
-    multiply_command = MultiplyCommand(6, 7)
-    assert multiply_command.execute() == 42
+def test_register_command(command_handler, mock_command):
+    """Test registering a command."""
+    command_handler.register_command("mock", mock_command)
+    assert "mock" in command_handler.commands
 
-# Test for DivideCommand
-def test_divide_command():
-    divide_command = DivideCommand(20, 5)
-    assert divide_command.execute() == 4
+def test_register_invalid_command(command_handler):
+    """Test that registering an invalid command raises an error."""
+    with pytest.raises(ValueError, match="Command test must be an instance of the Command class"):
+        command_handler.register_command("test", "invalid_command")
 
-# Test for DivideCommand handling division by zero
-def test_divide_by_zero():
-    # Attempt to create a DivideCommand with a denominator of zero
-    divide_command = DivideCommand(10, 0)  # Create an instance
+def test_execute_command(command_handler, mock_command):
+    """Test executing a registered command."""
+    command_handler.register_command("mock", mock_command)
+    assert command_handler.execute_command("mock", "arg1") == "Mock Command Executed with args: ('arg1',)"
 
-    # Check that executing this command raises the expected ValueError
-    with pytest.raises(ValueError, match="Cannot divide by zero"):
-        divide_command.execute()  # This should raise the ValueError
+def test_execute_unknown_command(command_handler):
+    """Test executing an unknown command."""
+    assert command_handler.execute_command("unknown") == "Unknown command: unknown"
 
-# Test for MenuCommand
-def test_menu_command():
-    # Create a MenuCommand instance
-    menu_command = MenuCommand()
-    # Execute the command
-    output = menu_command.execute()
-    # Verify the expected output directly from the command
-    expected_output = "Available operations: add, subtract, multiply, divide\n"  # This should match the command's output
-    assert output == expected_output  # Check the output of the command
+def test_unregister_command(command_handler, mock_command):
+    """Test unregistering a command."""
+    command_handler.register_command("mock", mock_command)
+    command_handler.unregister_command("mock")
+    assert "mock" not in command_handler.commands
+
+def test_list_commands(command_handler, mock_command):
+    """Test listing available commands."""
+    command_handler.register_command("mock", mock_command)
+    assert "mock" in command_handler.list_commands()
+
+def test_reset_commands(command_handler, mock_command):
+    """Test resetting the command registry."""
+    command_handler.register_command("mock", mock_command)
+    command_handler.reset_commands()
+    assert command_handler.list_commands() == []
