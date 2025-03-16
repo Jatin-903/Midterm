@@ -5,13 +5,14 @@ from app.plugins.add import AddCommand
 from app.plugins.subtract import SubtractCommand
 from app.plugins.multiply import MultiplyCommand
 from app.plugins.divide import DivideCommand
+from app.plugins.power import PowerCommand
+from app.plugins.menu import MenuCommand
 
 
 # Test REPL behavior in the App class
 
 def test_app_start_exit_command(monkeypatch):
     """Test that the REPL exits correctly on 'exit' command."""
-    # Simulate user entering 'exit'
     monkeypatch.setattr('builtins.input', lambda _: 'exit')
     app = App()
     with pytest.raises(SystemExit) as exit_exception:
@@ -21,111 +22,125 @@ def test_app_start_exit_command(monkeypatch):
 
 def test_app_start_unknown_command(capfd, monkeypatch):
     """Test how the REPL handles an unknown command before exiting."""
-    # Simulate user entering an unknown command followed by 'exit'
     inputs = iter(['unknown_command', 'exit'])
     monkeypatch.setattr('builtins.input', lambda _: next(inputs))
-    app=App()
+    app = App()
     with pytest.raises(SystemExit):
         app.start()
-    # Verify that the unknown command was handled as expected
     captured = capfd.readouterr()
     assert "Unknown command: unknown_command" in captured.out
 
 
-
 # Test CommandHandler functionality with various commands
 
-def test_register_and_execute_multiply_command(capsys):
+def test_register_and_execute_add_command():
+    """Test registration and execution of the AddCommand."""
+    handler = CommandHandler()
+    add_command = AddCommand()
+
+    # Register the add command
+    handler.register_command("add", add_command)
+
+    # Execute the add command
+    result = handler.execute_command("add", 2, 3)
+
+    # Assert the output is correct
+    assert result == 5
+
+
+def test_register_and_execute_subtract_command():
+    """Test registration and execution of the SubtractCommand."""
+    handler = CommandHandler()
+    subtract_command = SubtractCommand()
+
+    # Register the subtract command
+    handler.register_command("subtract", subtract_command)
+
+    # Execute the subtract command
+    result = handler.execute_command("subtract", 5, 2)
+
+    # Assert the output is correct
+    assert result == 3
+
+
+def test_register_and_execute_multiply_command():
     """Test registration and execution of the MultiplyCommand."""
     handler = CommandHandler()
-    multiply_command = MultiplyCommand(6, 7)
+    multiply_command = MultiplyCommand()
 
     # Register the multiply command
     handler.register_command("multiply", multiply_command)
 
     # Execute the multiply command
-    result = handler.execute_command("multiply")
+    result = handler.execute_command("multiply", 6, 7)
 
-    # Capture printed output
-    captured = capsys.readouterr()
-
-    # Assert that the output is correct
-    assert captured.out == "MultiplyCommand: 6 * 7 = 42\n"
+    # Assert the output is correct
     assert result == 42
 
 
-def test_register_and_execute_divide_command(capsys):
+def test_register_and_execute_divide_command():
     """Test registration and execution of the DivideCommand."""
     handler = CommandHandler()
-    divide_command = DivideCommand(10, 2)
+    divide_command = DivideCommand()
 
     # Register the divide command
     handler.register_command("divide", divide_command)
 
     # Execute the divide command
-    result = handler.execute_command("divide")
+    result = handler.execute_command("divide", 10, 2)
 
-    # Capture printed output
-    captured = capsys.readouterr()
-
-    # Assert that the output is correct
-    assert captured.out == "DivideCommand: 10 / 2 = 5.0\n"
+    # Assert the output is correct
     assert result == 5.0
 
 
 def test_divide_by_zero():
     """Test that dividing by zero raises a ValueError."""
     handler = CommandHandler()
-    divide_command = DivideCommand(10, 0)
+    divide_command = DivideCommand()
 
     # Register the divide command
     handler.register_command("divide_zero", divide_command)
 
     # Check that dividing by zero raises the appropriate ValueError
     with pytest.raises(ValueError, match="Cannot divide by zero"):
-        handler.execute_command("divide_zero")
+        handler.execute_command("divide_zero", 10, 0)
 
 
-def test_register_and_execute_add_command(capsys):
-    """Test registration and execution of the AddCommand."""
+def test_register_and_execute_power_command():
+    """Test registration and execution of the PowerCommand."""
     handler = CommandHandler()
-    add_command = AddCommand(2, 3)
+    power_command = PowerCommand()
 
-    # Register the add command
-    handler.register_command("add", add_command)
+    # Register the power command
+    handler.register_command("power", power_command)
 
-    # Execute the add command
-    result = handler.execute_command("add")
+    # Execute the power command
+    result = handler.execute_command("power", 2, 3)
 
-    # Capture printed output
-    captured = capsys.readouterr()
-
-    # Assert that the output is correct
-    assert captured.out == "AddCommand: 2 + 3 = 5\n"
-    assert result == 5
+    # Assert the output is correct (2^3 = 8)
+    assert result == 8
 
 
-def test_register_and_execute_subtract_command(capsys):
-    """Test registration and execution of the SubtractCommand."""
+def test_register_and_execute_menu_command():
+    """Test registration and execution of the MenuCommand."""
     handler = CommandHandler()
-    subtract_command = SubtractCommand(5, 2)
+    menu_command = MenuCommand(handler)
 
-    # Register the subtract command
-    handler.register_command("subtract", subtract_command)
+    # Register a sample command
+    handler.register_command("sample", AddCommand())
 
-    # Execute the subtract command
-    result = handler.execute_command("subtract")
+    # Register the menu command
+    handler.register_command("menu", menu_command)
 
-    # Capture printed output
-    captured = capsys.readouterr()
+    # Execute the menu command
+    result = handler.execute_command("menu")
 
-    # Assert that the output is correct
-    assert captured.out == "SubtractCommand: 5 - 2 = 3\n"
-    assert result == 3
+    # Assert that "sample" appears in the menu list
+    assert "sample" in result
 
 
 def test_execute_nonexistent_command():
-    """Test executing a command that doesn't exist raises an error."""
+    """Test executing a command that doesn't exist returns an error."""
     handler = CommandHandler()
 
     # Try executing a command that doesn't exist

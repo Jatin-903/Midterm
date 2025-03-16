@@ -1,8 +1,12 @@
-""" This module defines the MenuCommand, which prints a menu of available operations."""
-import sys
 from app.commands import Command
 
 class MenuCommand(Command):
-    """Class to represent a menu command."""
+    """Command to display available commands."""
+
+    def __init__(self, command_handler):
+        """Initialize with access to registered commands."""
+        self.command_handler = command_handler
+
     def execute(self):
-        return "Available operations: add, subtract, multiply, divide\n"  # Updated output
+        """Return a list of available commands."""
+        return "Available commands: " + ", ".join(self.command_handler.list_commands())

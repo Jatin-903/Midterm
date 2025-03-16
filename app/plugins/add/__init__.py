@@ -1,12 +1,8 @@
 from app.commands import Command
 
 class AddCommand(Command):
-    """Class to represent a addition command."""
-    def __init__(self, a, b):
-        self.a = a
-        self.b = b
+    """Command to perform addition."""
 
-    def execute(self):
-        result = self.a + self.b
-        print(f"AddCommand: {self.a} + {self.b} = {result}")
-        return result
+    def execute(self, a, b):
+        """Execute the addition operation."""
+        return a + b
