@@ -1,3 +1,13 @@
 2025-03-15 15:51:50,362 - INFO - Executed add command with result: 122222221
 2025-03-15 15:52:03,405 - INFO - Executed power command with result: 8
 2025-03-15 16:14:53,439 - INFO - Executed add command with result: 5
+2025-03-16 18:25:44,123 - INFO - Executed add command with result: 3
+2025-03-16 18:25:53,575 - ERROR - Invalid input: invalid literal for int() with base 10: 'quit'
+2025-03-16 18:25:56,505 - INFO - Exiting the app. Goodbye!
+2025-03-16 23:45:28,716 - INFO - Executed add command with result: 90
+2025-03-16 23:45:41,541 - INFO - Executed divide command with result: 0.2948717948717949
+2025-03-16 23:46:20,040 - INFO - Exiting the app. Goodbye!
+2025-03-16 23:48:27,915 - INFO - Executed add command with result: 25
+2025-03-16 23:48:40,006 - INFO - Executed subtract command with result: 3
+2025-03-16 23:48:50,536 - INFO - Executed power command with result: 8
+2025-03-16 23:48:57,186 - INFO - Exiting the app. Goodbye!
